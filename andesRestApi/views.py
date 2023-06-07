@@ -12,26 +12,42 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 
 
+# class EnvioListCreateView(generics.ListCreateAPIView):
+#     queryset = Envio.objects.all()
+#     serializer_class = EnvioSerializer
+
+#     def perform_create(self, serializer):
+#         estado = self.request.data.get('estado_envio')
+#         if estado == Envio.ESTADO_EN_REPARTO or estado == Envio.ESTADO_ENTREGADO:
+#             envio = serializer.save()
+#             movimiento_data = {
+#                 'estado': estado,
+#                 'ubicacion': self.request.META.get('REMOTE_ADDR'),
+#                 'fecha_hora': timezone.now(),
+#                 'envio': envio.id
+#             }
+#             Movimiento.objects.create(**movimiento_data)
+#             return Response({'detail': 'Envío gestionado correctamente.'})
+#         else:
+#             return Response({'error': 'No se permite cambiar el estado a {}'.format(estado)},
+#                             status=status.HTTP_400_BAD_REQUEST)
 class EnvioListCreateView(generics.ListCreateAPIView):
     queryset = Envio.objects.all()
     serializer_class = EnvioSerializer
 
-    def perform_create(self, serializer):
-        estado = self.request.data.get('estado_envio')
-        if estado == Envio.ESTADO_EN_REPARTO or estado == Envio.ESTADO_ENTREGADO:
-            envio = serializer.save()
-            movimiento_data = {
-                'estado': estado,
-                'ubicacion': self.request.META.get('REMOTE_ADDR'),
-                'fecha_hora': timezone.now(),
-                'envio': envio.id
-            }
-            Movimiento.objects.create(**movimiento_data)
-            return Response({'detail': 'Envío gestionado correctamente.'})
-        else:
-            return Response({'error': 'No se permite cambiar el estado a {}'.format(estado)},
-                            status=status.HTTP_400_BAD_REQUEST)
-    
+    def create(self, request, *args, **kwargs):
+        estado_envio = request.data.get('estado_envio', Envio.ESTADO_EN_PREPARACION)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        envio = serializer.save(estado_envio=estado_envio)
+        headers = self.get_success_headers(serializer.data)
+
+        response_data = {
+            'numero_seguimiento': envio.numero_seguimiento,
+            'estado_envio': envio.estado_envio
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)    
 
 
 class EnvioRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
