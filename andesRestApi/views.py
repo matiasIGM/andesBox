@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.decorators import api_view
-
+from django.http import Http404
 
 # class EnvioListCreateView(generics.ListCreateAPIView):
 #     queryset = Envio.objects.all()
@@ -64,18 +64,51 @@ class MovimientoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
 
 
 
-class EnvioByTrackingNumberView(viewsets.ViewSet):
-    queryset = Envio.objects.all()
-    serializer_class = EnvioSerializer
-    lookup_field = 'numero_seguimiento'
-    lookup_url_kwarg = 'tracking_number'
+# class EnvioByTrackingNumberView(viewsets.ViewSet):
+#     queryset = Envio.objects.all()
+#     serializer_class = EnvioSerializer
+#     lookup_field = 'numero_seguimiento'
+#     lookup_url_kwarg = 'tracking_number'
 
-    def track(self, request, *args, **kwargs):
+#     def track(self, request, *args, **kwargs):
+#         tracking_number = self.kwargs['tracking_number']
+#         envio = get_object_or_404(Envio, numero_seguimiento=tracking_number)
+#         serializer = self.serializer_class(envio)
+#         return Response(serializer.data)
+class EnvioByTrackingNumberView(viewsets.ViewSet):
+    # ...
+    
+    @action(detail=True, methods=['get'])
+    def get_envio(self, request, *args, **kwargs):
         tracking_number = self.kwargs['tracking_number']
         envio = get_object_or_404(Envio, numero_seguimiento=tracking_number)
-        serializer = self.serializer_class(envio)
-        return Response(serializer.data)
+        movimientos = Movimiento.objects.filter(envio=envio).order_by('-fecha_hora')
 
+        movimientos_serializer = MovimientoSerializer(movimientos, many=True)
+
+        response_data = {
+            'numero_seguimiento': envio.numero_seguimiento,
+            'amountPieces': envio.amountPieces,
+            'customerName': envio.customerName,
+            'creationDate': envio.creationDate,
+            'baseOrigin': envio.baseOrigin,
+            'receiverName': envio.receiverName,
+            'receiveMail': envio.receiveMail,
+            'receiverPhone': envio.receiverPhone,
+            'receiverAddress': envio.receiverAddress,
+            'receiverDistrict': envio.receiverDistrict,
+            'receiverCity': envio.receiverCity,
+            'receiverRegion': envio.receiverRegion,
+            'locationName': envio.locationName,
+            'patent': envio.patent,
+            'courierName': envio.courierName,
+            'receiver': envio.receiver,
+            'isDeliveryRetry': envio.isDeliveryRetry,
+            'estado_envio': envio.estado_envio,
+            'movimientos': movimientos_serializer.data
+        }
+
+        return Response(response_data)
 
 
 @api_view(['POST'])
@@ -89,21 +122,41 @@ def create_envio(request):
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# @api_view(['PUT'])
+# def update_envio(request, pk):
+#     estado = request.data.get('estado_envio')
+#     if estado and (estado == Envio.ESTADO_EN_REPARTO or estado == Envio.ESTADO_ENTREGADO):
+#         envio = get_object_or_404(Envio, pk=pk)
+#         envio.estado_envio = estado
+#         envio.save()
+#         movimiento_data = {
+#             'envio': envio,
+#             'estado': estado,
+#             'ubicacion': request.META.get('REMOTE_ADDR'),
+#             'fecha_hora': timezone.now()
+#         }
+#         Movimiento.objects.create(**movimiento_data)
+#         return Response({'detail': 'Envío gestionado correctamente.'})
+#     else:
+#         return Response({'error': 'No se permite cambiar el estado a {}'.format(estado)},
+#                         status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['PUT'])
-def update_envio(request, pk):
-    estado = request.data.get('estado_envio')
-    if estado and (estado == Envio.ESTADO_EN_REPARTO or estado == Envio.ESTADO_ENTREGADO):
-        envio = get_object_or_404(Envio, pk=pk)
-        envio.estado_envio = estado
-        envio.save()
-        movimiento_data = {
-            'envio': envio,
-            'estado': estado,
-            'ubicacion': request.META.get('REMOTE_ADDR'),
-            'fecha_hora': timezone.now()
-        }
-        Movimiento.objects.create(**movimiento_data)
-        return Response({'detail': 'Envío gestionado correctamente.'})
-    else:
-        return Response({'error': 'No se permite cambiar el estado a {}'.format(estado)},
-                        status=status.HTTP_400_BAD_REQUEST)
+def update_movimiento(request, numero_seguimiento):
+    try:
+        envio = Envio.objects.get(numero_seguimiento=numero_seguimiento)
+    except Envio.DoesNotExist:
+        return Response({"detail": "Envío no encontrado."}, status=404)
+
+    estado = request.data.get('estado')
+    ubicacion = request.data.get('ubicacion')
+    fecha_hora = request.data.get('fecha_hora')
+
+    movimiento = Movimiento(estado=estado, ubicacion=ubicacion, fecha_hora=fecha_hora, envio=envio)
+    movimiento.save()
+
+    # Actualizar los movimientos del envío
+    envio.movimientos.add(movimiento)
+
+    serializer = EnvioSerializer(envio)
+    return Response(serializer.data, status=200)
