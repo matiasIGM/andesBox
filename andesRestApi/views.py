@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.decorators import api_view
 from django.http import Http404
+import requests
 
 # class EnvioListCreateView(generics.ListCreateAPIView):
 #     queryset = Envio.objects.all()
@@ -116,10 +117,43 @@ def create_envio(request):
     serializer = EnvioSerializer(data=request.data)
     if serializer.is_valid():
         envio = serializer.save()
-        return Response({
-            'numero_seguimiento': envio.numero_seguimiento,
-            'message': 'Envío gestionado de manera correcta.'
-        }, status=status.HTTP_201_CREATED)
+
+        # Prepare the data for the API request
+        api_url = 'https://musicpro.bemtorres.win/api/v1/musicpro/send_email'
+        asunto = f"Envio en preparación para entrega MusicPro - {envio.numero_seguimiento}"
+        correo = envio.receiveMail
+        contenido = f"Este es un mensaje de MusicPro. Tu envío con número de seguimiento {envio.numero_seguimiento} se encuentra en proceso de preparación."
+
+        # Make the API request
+        response = requests.post(
+            api_url,
+            data={
+                'asunto': asunto,
+                'correo': correo,
+                'contenido': contenido
+            },
+            headers={
+                'accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+                'X-CSRF-TOKEN': ''
+            }
+        )
+
+        if response.status_code == 200:
+            # Check if the email was sent successfully
+            if response.json().get('status') == 'success':
+                return Response({
+                    'numero_seguimiento': envio.numero_seguimiento,
+                    'message': 'Envío gestionado de manera correcta. El correo se ha enviado correctamente.'
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    'numero_seguimiento': envio.numero_seguimiento,
+                    'message': 'Envío gestionado de manera correcta. Error al enviar el correo.'
+                }, status=status.HTTP_201_CREATED)
+
+        return Response({'error': 'Error al enviar el correo.'}, status=response.status_code)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # @api_view(['PUT'])

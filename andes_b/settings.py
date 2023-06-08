@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'andesRestApi',
     'drf_yasg',
+    'corsheaders'
 ]
 
 
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'andes_b.urls'
@@ -126,3 +128,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',  # Reemplaza con el origen correcto de tu frontend
+    # Agrega más orígenes permitidos si es necesario
+]
+
+# Opcional: Configura otras opciones de CORS según tus necesidades
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
