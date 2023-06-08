@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seguimiento de Envío</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Seguimiento de Envío</h1>
+    <label for="tracking-number">Número de Seguimiento:</label>
+    <input type="text" id="tracking-number">
+    <button onclick="getEnvio()">Obtener Estado</button>
+    <div id="envio-info"></div>
+    
+    <script>
+        function getEnvio() {
+            var trackingNumber = document.getElementById("tracking-number").value;
+            
+            axios.get(`/envios/track/${trackingNumber}/`)
+                .then(function (response) {
+                    var envioInfo = response.data;
+                    var html = `
+                        <p><strong>Número de Seguimiento:</strong> ${envioInfo.numero_seguimiento}</p>
+                        <p><strong>Estado:</strong> ${envioInfo.estado_envio}</p>
+                        <p><strong>Últimos Movimientos:</strong></p>
+                        <ul>
+                    `;
+                    
+                    envioInfo.movimientos.forEach(function (movimiento) {
+                        html += `<li>${movimiento.estado} - ${movimiento.fecha_hora}</li>`;
+                    });
+                    
+                    html += `</ul>`;
+                    
+                    document.getElementById("envio-info").innerHTML = html;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+    </script>
+</body>
+</html>
