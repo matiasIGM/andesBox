@@ -12,6 +12,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from django.http import Http404
 import requests
+import json
 
 # class EnvioListCreateView(generics.ListCreateAPIView):
 #     queryset = Envio.objects.all()
@@ -194,3 +195,42 @@ def update_movimiento(request, numero_seguimiento):
 
     serializer = EnvioSerializer(envio)
     return Response(serializer.data, status=200)
+
+
+
+#Código de integración de api externa
+@api_view(['GET'])
+def obtener_datos(request):
+    saludo_url = 'https://musicpro.bemtorres.win/api/v1/test/saludo'
+    saldo_url = 'https://musicpro.bemtorres.win/api/v1/test/saldo'
+
+    # Obtener respuesta del saludo
+    response_saludo = requests.get(saludo_url)
+    if response_saludo.status_code == 200:
+        data_saludo = json.loads(response_saludo.content)
+        mensaje_saludo = data_saludo.get('message')
+    else:
+        return Response({'error': 'Error al obtener el saludo'}, status=response_saludo.status_code)
+
+    # Obtener respuesta del saldo
+    response_saldo = requests.get(saldo_url)
+    if response_saldo.status_code == 200:
+        data_saldo = json.loads(response_saldo.content)
+        saldo = data_saldo.get('saldo')
+        mensaje_saldo = data_saldo.get('message')
+    else:
+        return Response({'error': 'Error al obtener el saldo'}, status=response_saldo.status_code)
+
+    # Construir la respuesta combinada
+    respuesta = {
+        'Respuesta de obtener saludo': {
+            'mensaje': mensaje_saludo
+        },
+        'Obtener saldo': {
+            'El saldo es de': saldo,
+            'mensaje': mensaje_saldo
+        },
+        'Obtenido desde las URL API': [saludo_url, saldo_url]
+    }
+
+    return Response(respuesta, status=status.HTTP_200_OK)
