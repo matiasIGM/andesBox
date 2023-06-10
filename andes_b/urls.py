@@ -58,4 +58,6 @@ urlpatterns = [
 
     #URLS FRONT
     path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    path('repartidor/', TemplateView.as_view(template_name='repartidor.html'), name='repartidor'),
+
 ]
