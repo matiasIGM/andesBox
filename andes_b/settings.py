@@ -133,6 +133,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',  # Reemplaza con el origen correcto de tu frontend
+    'http://d550-54-197-91-243.ngrok-free.app',  # subdominio de ngrok
     # Agrega más orígenes permitidos si es necesario
 ]
 
