@@ -9,8 +9,7 @@ class MovimientoSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        # representation.pop('id', None)
-        representation.pop('envio', None)
+        representation.pop('envio', None)# Comentario: Se omite la representación del campo 'envio' en el response de el modelo Movimientos
         return representation    
 
 class EnvioSerializer(serializers.ModelSerializer):
@@ -18,6 +17,6 @@ class EnvioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Envio
-        exclude = ['id']
+        exclude = ['id'] # Comentario: Se excluye el campo 'id' de la representación
 
     
