@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config # Importa la función `config` de la biblioteca `decouple`
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'andesRestApi',
     'drf_yasg',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework_api_key'
 ]
 
 
@@ -146,3 +148,16 @@ CORS_ALLOW_METHODS = [
     'DELETE',
     'OPTIONS',
 ]
+
+
+
+# Lee la API KEY desde el archivo de entorno utilizando la función `config`
+# La función `config` busca la clave en el archivo `.env` y la devuelve como una cadena de texto
+API_KEY = config('API_KEY')  # Asigna el valor de la API KEY a la variable `API_KEY`
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_api_key.authentication.TokenAuthentication',
+        
+    ],
+}
