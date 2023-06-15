@@ -55,6 +55,24 @@ class EnvioListCreateView(generics.ListCreateAPIView):
 class EnvioRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Envio.objects.all()
     serializer_class = EnvioSerializer
+    lookup_field = 'numero_seguimiento'
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        numero_seguimiento = instance.numero_seguimiento
+
+        if numero_seguimiento == kwargs.get('numero_seguimiento'):
+            self.perform_destroy(instance)
+            return Response({'message': 'Envío eliminado correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'error': 'El número de seguimiento no coincide.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        filtro = {self.lookup_field: self.kwargs.get(self.lookup_field)}
+        obj = get_object_or_404(queryset, **filtro)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 class MovimientoListCreateView(generics.ListCreateAPIView):
     queryset = Movimiento.objects.all()

@@ -54,3 +54,40 @@ class Movimiento(models.Model):
 
     def __str__(self):
         return self.estado
+
+# class Envio(models.Model):
+#     numero_seguimiento = models.CharField(max_length=20, unique=True)
+#     amountPieces = models.PositiveIntegerField(default=0)
+#     customerName = models.CharField(max_length=100)
+#     creationDate = models.DateTimeField(auto_now_add=True)
+#     baseOrigin = models.CharField(max_length=100)
+#     receiverName = models.CharField(max_length=100)
+#     receiveMail = models.EmailField()
+#     receiverPhone = models.CharField(max_length=20)
+#     receiverAddress = models.CharField(max_length=200)
+#     receiverDistrict = models.CharField(max_length=100)
+#     receiverCity = models.CharField(max_length=100)
+#     receiverRegion = models.CharField(max_length=100)
+#     locationName = models.CharField(max_length=100)
+#     patent = models.CharField(max_length=20)
+#     courierName = models.CharField(max_length=100)
+#     receiver = models.CharField(max_length=100)
+
+#     def __str__(self):
+#         return self.numero_seguimiento
+
+# class Movimiento(models.Model):
+#     ESTADO_CHOICES = [
+#         (0, 'En preparación'),
+#         (1, 'En reparto'),
+#         (2, 'Entregado a destinatario'),
+#         (3, 'Cancelado')
+#     ]
+
+#     numero_seguimiento = models.CharField(max_length=20)
+#     estado = models.PositiveIntegerField(choices=ESTADO_CHOICES)
+#     ubicacion = models.CharField(max_length=100, blank=True)
+#     fecha_hora = models.DateTimeField()
+
+#     def __str__(self):
+#         return self.numero_seguimiento
