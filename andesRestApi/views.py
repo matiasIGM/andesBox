@@ -14,25 +14,7 @@ from django.http import Http404
 import requests
 import json
 
-# class EnvioListCreateView(generics.ListCreateAPIView):
-#     queryset = Envio.objects.all()
-#     serializer_class = EnvioSerializer
 
-#     def perform_create(self, serializer):
-#         estado = self.request.data.get('estado_envio')
-#         if estado == Envio.ESTADO_EN_REPARTO or estado == Envio.ESTADO_ENTREGADO:
-#             envio = serializer.save()
-#             movimiento_data = {
-#                 'estado': estado,
-#                 'ubicacion': self.request.META.get('REMOTE_ADDR'),
-#                 'fecha_hora': timezone.now(),
-#                 'envio': envio.id
-#             }
-#             Movimiento.objects.create(**movimiento_data)
-#             return Response({'detail': 'Envío gestionado correctamente.'})
-#         else:
-#             return Response({'error': 'No se permite cambiar el estado a {}'.format(estado)},
-#                             status=status.HTTP_400_BAD_REQUEST)
 class EnvioListCreateView(generics.ListCreateAPIView):
     queryset = Envio.objects.all()
     serializer_class = EnvioSerializer
@@ -83,18 +65,6 @@ class MovimientoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
     serializer_class = MovimientoSerializer
 
 
-
-# class EnvioByTrackingNumberView(viewsets.ViewSet):
-#     queryset = Envio.objects.all()
-#     serializer_class = EnvioSerializer
-#     lookup_field = 'numero_seguimiento'
-#     lookup_url_kwarg = 'tracking_number'
-
-#     def track(self, request, *args, **kwargs):
-#         tracking_number = self.kwargs['tracking_number']
-#         envio = get_object_or_404(Envio, numero_seguimiento=tracking_number)
-#         serializer = self.serializer_class(envio)
-#         return Response(serializer.data)
 class EnvioByTrackingNumberView(viewsets.ViewSet):
     # ...
     
@@ -123,8 +93,6 @@ class EnvioByTrackingNumberView(viewsets.ViewSet):
             'patent': envio.patent,
             'courierName': envio.courierName,
             'receiver': envio.receiver,
-            'isDeliveryRetry': envio.isDeliveryRetry,
-            'estado_envio': envio.estado_envio,
             'movimientos': movimientos_serializer.data
         }
 
@@ -175,24 +143,6 @@ def create_envio(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['PUT'])
-# def update_envio(request, pk):
-#     estado = request.data.get('estado_envio')
-#     if estado and (estado == Envio.ESTADO_EN_REPARTO or estado == Envio.ESTADO_ENTREGADO):
-#         envio = get_object_or_404(Envio, pk=pk)
-#         envio.estado_envio = estado
-#         envio.save()
-#         movimiento_data = {
-#             'envio': envio,
-#             'estado': estado,
-#             'ubicacion': request.META.get('REMOTE_ADDR'),
-#             'fecha_hora': timezone.now()
-#         }
-#         Movimiento.objects.create(**movimiento_data)
-#         return Response({'detail': 'Envío gestionado correctamente.'})
-#     else:
-#         return Response({'error': 'No se permite cambiar el estado a {}'.format(estado)},
-#                         status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
 def update_movimiento(request, numero_seguimiento):
@@ -213,6 +163,22 @@ def update_movimiento(request, numero_seguimiento):
 
     serializer = EnvioSerializer(envio)
     return Response(serializer.data, status=200)
+
+class MovimientoDestroyView(generics.DestroyAPIView):
+    queryset = Movimiento.objects.all()
+    serializer_class = MovimientoSerializer
+    lookup_field = 'id'  # Campo utilizado para buscar el movimiento a eliminar
+
+
+@api_view(['DELETE'])
+def eliminar_movimiento(request, numero_seguimiento, id):
+    envio = get_object_or_404(Envio, numero_seguimiento=numero_seguimiento)
+    movimiento = envio.movimientos.filter(id=id).first()
+    if movimiento is None:
+        return Response({'message': 'El movimiento no existe.'}, status=404)
+
+    movimiento.delete()
+    return Response({'message': 'Movimiento eliminado con éxito.'}, status=200)
 
 
 
