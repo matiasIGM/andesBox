@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'andesRestApi',
     'drf_yasg',
     'corsheaders',
-    # 'rest_framework_api_key',
+    'rest_framework_api_key',
 
 ]
 
@@ -160,3 +160,11 @@ CORS_ALLOW_METHODS = [
 #         "rest_framework_api_key.permissions.HasAPIKey",
 
 #     ]}
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework_api_key.permissions.HasAPIKey",
+    ]
+}
+
+API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"

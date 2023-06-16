@@ -10,12 +10,15 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.decorators import api_view
+from rest_framework_api_key.permissions import HasAPIKey
 from django.http import Http404
 import requests
 import json
 
 
 class EnvioListCreateView(generics.ListCreateAPIView):
+    permission_classes = [HasAPIKey]
+
     queryset = Envio.objects.all()
     serializer_class = EnvioSerializer
 
