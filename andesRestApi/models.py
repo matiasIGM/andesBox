@@ -36,7 +36,7 @@ class Envio(models.Model):
     estado_envio = models.CharField(max_length=20, choices=ESTADO_ENVIO_CHOICES, default=ESTADO_EN_PREPARACION)
 
     def __str__(self):
-        return self.numero_seguimiento
+        return str(self.numero_seguimiento)
 
     def save(self, *args, **kwargs):
         if not self.numero_seguimiento:
