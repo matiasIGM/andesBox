@@ -81,3 +81,27 @@ Para realizar una petición GET a la API de andesBox, sigue estos pasos:
   ```
 
 5. Realiza la solicitud GET a la URL completa que incluye la URL base, el endpoint y los parámetros necesarios. Recibirás la respuesta de la API con los datos solicitados.
+
+
+
+## Creación de API Keys desde el panel de administración
+
+Puedes crear API Keys desde el panel de administración de Django siguiendo estos pasos:
+
+1. Abre tu navegador web y accede al panel de administración de Django en la siguiente URL: [http://localhost:8000/admin/](http://localhost:8000/admin/). Si estás ejecutando el servidor de desarrollo en una dirección IP diferente, reemplaza "localhost" con la dirección correspondiente.
+
+2. Ingresa las credenciales de administrador. El nombre de usuario es "admin" y la contraseña es "admin" de forma predeterminada. Asegúrate de cambiar estas credenciales por valores seguros en un entorno de producción.
+
+3. Una vez que hayas iniciado sesión en el panel de administración, busca la sección "API KEY PERMISSIONS" en el menú.
+
+4. Haz clic en "ADD" para crear una nueva API Key.
+
+5. En la página de creación de API Key, proporciona una descripción opcional para identificar el propósito o uso de la clave.
+
+6. Haz clic en "SAVE" para guardar la API Key.
+
+7. La API Key se generará automáticamente y se mostrará en la lista de claves disponibles. Copia esta clave y guárdala de manera segura, ya que no se mostrará nuevamente una vez que salgas de esta página.
+
+8. Ahora puedes utilizar esta API Key para autenticarte en las solicitudes a la API de andesBox. Asegúrate de incluir la API Key en los encabezados de tus solicitudes o como parámetro en la URL, según las especificaciones de autenticación de la API.
+
+Recuerda que la sección del panel de administración para crear API Keys solo está disponible para los usuarios con permisos de administrador. Asegúrate de proteger adecuadamente el acceso al panel de administración en un entorno de producción y asignar los permisos adecuados a los usuarios.
