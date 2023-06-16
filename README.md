@@ -102,6 +102,6 @@ Puedes crear API Keys desde el panel de administración de Django siguiendo esto
 
 7. La API Key se generará automáticamente y se mostrará en la lista de claves disponibles. Copia esta clave y guárdala de manera segura, ya que no se mostrará nuevamente una vez que salgas de esta página.
 
-8. Ahora puedes utilizar esta API Key para autenticarte en las solicitudes a la API de andesBox. Asegúrate de incluir la API Key en los encabezados de tus solicitudes o como parámetro en la URL, según las especificaciones de autenticación de la API.
+8. Ahora puedes utilizar esta API Key para autenticarte en las solicitudes a la API de andesBox. Asegúrate de incluir la API Key en los encabezados de tus solicitudes, según las especificaciones de autenticación de la API.
 
 Recuerda que la sección del panel de administración para crear API Keys solo está disponible para los usuarios con permisos de administrador. Asegúrate de proteger adecuadamente el acceso al panel de administración en un entorno de producción y asignar los permisos adecuados a los usuarios.
