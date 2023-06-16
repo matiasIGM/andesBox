@@ -23,6 +23,7 @@ from drf_yasg import openapi
 from django.views.generic import TemplateView
 
 
+
 # Configuración de la vista de documentación de la API
 
 schema_view = get_schema_view(
@@ -59,4 +60,4 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='index'),
     path('repartidor/', TemplateView.as_view(template_name='repartidor.html'), name='repartidor'), # URL de la página del repartidor
 
-]
+] 

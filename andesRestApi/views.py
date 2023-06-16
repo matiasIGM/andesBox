@@ -1,12 +1,9 @@
 from django.shortcuts import render
 
-# Create your views here.
+# Importaciones de terceros
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
-from andesRestApi.models import Envio, Movimiento
-from andesRestApi.serializers import EnvioSerializer, MovimientoSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -17,15 +14,18 @@ from django.http import Http404
 import requests
 import json
 
+# Importaciones locales
+from andesRestApi.models import Envio, Movimiento
+from andesRestApi.serializers import EnvioSerializer, MovimientoSerializer
 
 
-
+# Vista para listar y crear envíos
 class EnvioListCreateView(generics.ListCreateAPIView):
     permission_classes = [HasAPIKey]
 
     queryset = Envio.objects.all()
     serializer_class = EnvioSerializer
-
+    # Método para crear un envío
     def create(self, request, *args, **kwargs):
         estado_envio = request.data.get('estado_envio', Envio.ESTADO_EN_PREPARACION)
         serializer = self.get_serializer(data=request.data)
@@ -40,12 +40,12 @@ class EnvioListCreateView(generics.ListCreateAPIView):
 
         return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)    
 
-
+# Vista para obtener, actualizar y eliminar un envío por número de seguimiento
 class EnvioRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Envio.objects.all()
     serializer_class = EnvioSerializer
     lookup_field = 'numero_seguimiento'
-
+    # Método para eliminar un envío
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         numero_seguimiento = instance.numero_seguimiento
@@ -55,7 +55,8 @@ class EnvioRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return Response({'message': 'Envío eliminado correctamente.'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({'error': 'El número de seguimiento no coincide.'}, status=status.HTTP_400_BAD_REQUEST)
-
+    
+    # Método para obtener un envío
     def get_object(self):
         queryset = self.get_queryset()
         filtro = {self.lookup_field: self.kwargs.get(self.lookup_field)}
@@ -63,20 +64,22 @@ class EnvioRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         self.check_object_permissions(self.request, obj)
         return obj
 
+# Vista para listar y crear movimientos
 class MovimientoListCreateView(generics.ListCreateAPIView):
     queryset = Movimiento.objects.all()
     serializer_class = MovimientoSerializer
 
+# Vista para obtener, actualizar y eliminar un movimiento
 class MovimientoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Movimiento.objects.all()
     serializer_class = MovimientoSerializer
 
 
-
+# Vista para obtener un envío por número de seguimiento
 @permission_classes([IsAuthenticatedOrReadOnly])
 class EnvioByTrackingNumberView(viewsets.ViewSet):
-    # ...
     
+    # Método para obtener un envío
     @action(detail=True, methods=['get'])
     def get_envio(self, request, *args, **kwargs):
         tracking_number = self.kwargs['tracking_number']
@@ -107,20 +110,20 @@ class EnvioByTrackingNumberView(viewsets.ViewSet):
 
         return Response(response_data)
 
-
+# Vista para crear un envío
 @api_view(['POST'])
 def create_envio(request):
     serializer = EnvioSerializer(data=request.data)
     if serializer.is_valid():
         envio = serializer.save()
 
-        # Prepare the data for the API request
+        # Preparar los datos para la solicitud a la API
         api_url = 'https://musicpro.bemtorres.win/api/v1/musicpro/send_email'
         asunto = f"Envio en preparación para entrega MusicPro - {envio.numero_seguimiento}"
         correo = envio.receiveMail
         contenido = f"Este es un mensaje de MusicPro. Tu envío con número de seguimiento {envio.numero_seguimiento} se encuentra en proceso de preparación."
 
-        # Make the API request
+        # Realizar la solicitud a la API
         response = requests.post(
             api_url,
             data={
@@ -136,7 +139,7 @@ def create_envio(request):
         )
 
         if response.status_code == 200:
-            # Check if the email was sent successfully
+            # Verificar si el correo se envió correctamente
             if response.json().get('status') == 'success':
                 return Response({
                     'numero_seguimiento': envio.numero_seguimiento,
@@ -153,6 +156,7 @@ def create_envio(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Vista para actualizar un movimiento
 @api_view(['PUT'])
 def update_movimiento(request, numero_seguimiento):
     try:
@@ -173,12 +177,14 @@ def update_movimiento(request, numero_seguimiento):
     serializer = EnvioSerializer(envio)
     return Response(serializer.data, status=200)
 
+
 class MovimientoDestroyView(generics.DestroyAPIView):
     queryset = Movimiento.objects.all()
     serializer_class = MovimientoSerializer
     lookup_field = 'id'  # Campo utilizado para buscar el movimiento a eliminar
 
 
+# Vista para eliminar un movimiento
 @api_view(['DELETE'])
 def eliminar_movimiento(request, numero_seguimiento, id):
     envio = get_object_or_404(Envio, numero_seguimiento=numero_seguimiento)
