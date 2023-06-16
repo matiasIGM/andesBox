@@ -27,10 +27,18 @@ SECRET_KEY = 'django-insecure-mk6-vh8lw8x#0)vltoorxr0tiyc$y$i)q%fbtu==fwni$#pz@l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['54.197.91.243', 'example.com', '127.0.0.1', '0.0.0.0', 'd550-54-197-91-243.ngrok-free.app', 'localhost']
+# Define los hosts permitidos
+ALLOWED_HOSTS = [
+    '54.197.91.243',
+      'example.com',
+        '127.0.0.1',
+          '0.0.0.0',
+            'd550-54-197-91-243.ngrok-free.app',
+              'localhost'
+              ]
 
 
-# Application definition
+# Lista de aplicaciones instaladas en el proyecto Django
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -48,6 +56,7 @@ INSTALLED_APPS = [
 ]
 
 
+# Lista de middleware utilizado por la aplicación Django
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,8 +69,12 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+# Módulo Python que contiene la configuración de las URL
 ROOT_URLCONF = 'andes_b.urls'
 
+
+
+# Configuración de plantillas para renderizar HTML
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,6 +91,7 @@ TEMPLATES = [
     },
 ]
 
+# Punto de entrada de la aplicación web WSGI
 WSGI_APPLICATION = 'andes_b.wsgi.application'
 
 
@@ -114,13 +128,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-us' # Código de idioma utilizado en la aplicación
+TIME_ZONE = 'UTC' # Zona horaria utilizada en la aplicación
+USE_I18N = True # Habilita la internacionalización
+USE_TZ = True # Habilita la zona horaria
 
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -131,16 +143,17 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
+# Tipo de campo de clave primaria predeterminado
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# Configuración de permisos de acceso cruzado (CORS) para permitir solicitudes desde diferentes orígenes
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',  # Reemplaza con el origen correcto de tu frontend
     'http://d550-54-197-91-243.ngrok-free.app',  # subdominio de ngrok
-    # Agrega más orígenes permitidos si es necesario
+    # Agrega más orígenes permitidos aquí...
 ]
 
-# Opcional: Configura otras opciones de CORS según tus necesidades
+# Métodos de solicitud permitidos por CORS
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
@@ -151,20 +164,12 @@ CORS_ALLOW_METHODS = [
 ]
 
 
-
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.SessionAuthentication',
-#         'rest_framework.authentication.BasicAuthentication',
-#         'rest_framework_api_key.authentication.TokenAuthentication',
-#         "rest_framework_api_key.permissions.HasAPIKey",
-
-#     ]}
-
+# Configuración predeterminada de permisos para la API
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework_api_key.permissions.HasAPIKey",
     ]
 }
 
+# Encabezado personalizado utilizado para enviar la clave de API
 API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"
