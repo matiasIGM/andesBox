@@ -2,18 +2,22 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import generics
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 from andesRestApi.models import Envio, Movimiento
 from andesRestApi.serializers import EnvioSerializer, MovimientoSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from rest_framework.decorators import api_view
+from django.utils.decorators import method_decorator
 from rest_framework_api_key.permissions import HasAPIKey
 from django.http import Http404
 import requests
 import json
+
+
 
 
 class EnvioListCreateView(generics.ListCreateAPIView):
@@ -68,6 +72,8 @@ class MovimientoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
     serializer_class = MovimientoSerializer
 
 
+
+@permission_classes([IsAuthenticatedOrReadOnly])
 class EnvioByTrackingNumberView(viewsets.ViewSet):
     # ...
     
@@ -187,6 +193,7 @@ def eliminar_movimiento(request, numero_seguimiento, id):
 
 #Código de integración de api externa
 @api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def obtener_datos(request):
     saludo_url = 'https://musicpro.bemtorres.win/api/v1/test/saludo'
     saldo_url = 'https://musicpro.bemtorres.win/api/v1/test/saldo'
